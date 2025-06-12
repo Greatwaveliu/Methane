@@ -2,28 +2,15 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
-
 import matplotlib
 # Use a non-interactive backend since the plots are generated in worker
 # threads and no GUI display is required.
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-
 
 import os
 import glob
 from PIL import Image, ImageTk
 import threading
-import seaborn as sns
-from scipy.interpolate import griddata
-import geopandas as gpd
-import contextily as ctx
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import silhouette_score, davies_bouldin_score
-from prophet import Prophet
 
 from analysis.scatter import ScatterAnalysis
 from analysis.histogram import HistogramAnalysis
@@ -711,6 +698,12 @@ class MethaneAnalysisApp(ctk.CTk):
         self.tab_buttons[name].configure(fg_color=("gray75", "gray25"))
         self.active_tab = name
 
+    def _start_thread(self, target, *args):
+        """Utility to start a daemon thread."""
+        thread = threading.Thread(target=target, args=args)
+        thread.daemon = True
+        thread.start()
+
     def refresh_scatter_images(self):
         if not hasattr(self, 'scatter_image_viewer'):
             return
@@ -910,9 +903,7 @@ class MethaneAnalysisApp(ctk.CTk):
         self.scatter_status.configure(text="🔄 Running scatter plot analysis...")
         self.run_scatter_btn.configure(state="disabled", text="Running...")
         
-        thread = threading.Thread(target=self._run_scatter_analysis_thread)
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_scatter_analysis_thread)
 
     def _run_scatter_analysis_thread(self):
         try:
@@ -946,9 +937,7 @@ class MethaneAnalysisApp(ctk.CTk):
         self.histogram_status.configure(text="🔄 Running histogram analysis...")
         self.run_histogram_btn.configure(state="disabled", text="Running...")
         
-        thread = threading.Thread(target=self._run_histogram_analysis_thread)
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_histogram_analysis_thread)
 
     def _run_histogram_analysis_thread(self):
         try:
@@ -982,9 +971,7 @@ class MethaneAnalysisApp(ctk.CTk):
         self.box_status.configure(text="🔄 Running box plot analysis...")
         self.run_box_btn.configure(state="disabled", text="Running...")
         
-        thread = threading.Thread(target=self._run_box_analysis_thread)
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_box_analysis_thread)
 
     def _run_box_analysis_thread(self):
         try:
@@ -1018,9 +1005,7 @@ class MethaneAnalysisApp(ctk.CTk):
         self.contour_status.configure(text="🔄 Running contour plot analysis...")
         self.run_contour_btn.configure(state="disabled", text="Running...")
         
-        thread = threading.Thread(target=self._run_contour_analysis_thread)
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_contour_analysis_thread)
 
     def _run_contour_analysis_thread(self):
         try:
@@ -1057,9 +1042,7 @@ class MethaneAnalysisApp(ctk.CTk):
         status.configure(text=f"🔄 Running K-means analysis ({mode})...")
         btn.configure(state="disabled", text="Running...")
         
-        thread = threading.Thread(target=self._run_kmeans_analysis_thread, args=(mode,))
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_kmeans_analysis_thread, mode)
 
     def _run_kmeans_analysis_thread(self, mode):
         try:
@@ -1096,9 +1079,7 @@ class MethaneAnalysisApp(ctk.CTk):
         self.dfa_status.configure(text="🔄 Running DFA analysis...")
         self.run_dfa_btn.configure(state="disabled", text="Running...")
 
-        thread = threading.Thread(target=self._run_dfa_analysis_thread)
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_dfa_analysis_thread)
 
     def _run_dfa_analysis_thread(self):
         try:
@@ -1126,9 +1107,7 @@ class MethaneAnalysisApp(ctk.CTk):
             return
         self.psa_status.configure(text="🔄 Running PSA analysis...")
         self.run_psa_btn.configure(state="disabled", text="Running...")
-        thread = threading.Thread(target=self._run_psa_analysis_thread)
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_psa_analysis_thread)
 
     def _run_psa_analysis_thread(self):
         try:
@@ -1158,9 +1137,7 @@ class MethaneAnalysisApp(ctk.CTk):
         self.lstm_status.configure(text="🔄 Running LSTM analysis...")
         self.run_lstm_btn.configure(state="disabled", text="Running...")
         
-        thread = threading.Thread(target=self._run_lstm_analysis_thread)
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_lstm_analysis_thread)
 
     def _run_lstm_analysis_thread(self):
         try:
@@ -1194,9 +1171,7 @@ class MethaneAnalysisApp(ctk.CTk):
         self.prophet_status.configure(text="🔄 Running Prophet analysis...")
         self.run_prophet_btn.configure(state="disabled", text="Running...")
         
-        thread = threading.Thread(target=self._run_prophet_analysis_thread)
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_prophet_analysis_thread)
 
     def _run_prophet_analysis_thread(self):
         try:
@@ -1241,9 +1216,7 @@ class MethaneAnalysisApp(ctk.CTk):
         self.mass_status.configure(text="🔄 Running mass estimation...")
         self.run_mass_btn.configure(state="disabled", text="Running...")
         
-        thread = threading.Thread(target=self._run_mass_estimation_thread)
-        thread.daemon = True
-        thread.start()
+        self._start_thread(self._run_mass_estimation_thread)
 
     def _run_mass_estimation_thread(self):
         try:
