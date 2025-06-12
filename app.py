@@ -692,10 +692,18 @@ class MethaneAnalysisApp(ctk.CTk):
     def switch_tab(self, name):
         if self.active_tab:
             self.tab_frames[self.active_tab].pack_forget()
-            self.tab_buttons[self.active_tab].configure(fg_color="transparent")
+            # restore default style for previously active button
+            self.tab_buttons[self.active_tab].configure(
+                fg_color="transparent",
+                text_color=("gray10", "gray90"),
+            )
 
         self.tab_frames[name].pack(fill="both", expand=True)
-        self.tab_buttons[name].configure(fg_color=("gray75", "gray25"))
+        # make active tab visible in both light and dark mode
+        self.tab_buttons[name].configure(
+            fg_color=("gray75", "gray25"),
+            text_color=("black", "white"),
+        )
         self.active_tab = name
 
     def _start_thread(self, target, *args):
