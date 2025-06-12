@@ -4,7 +4,14 @@ from tkinter import filedialog, messagebox
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-import matplotlib.dates as mdates
+
+import matplotlib
+# Use a non-interactive backend since the plots are generated in worker
+# threads and no GUI display is required.
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+
 import os
 import glob
 from PIL import Image, ImageTk
