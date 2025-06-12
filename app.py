@@ -205,8 +205,23 @@ class HomeImage(ctk.CTkFrame):
 class MethaneAnalysisApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Methane Emission Analysis - Mexico")
+        self.title("Sistema Integral de Detecci\u00f3n y Cuantificaci\u00f3n de Emisiones de Metano (SIDEC-Metano)")
         self.geometry("1400x900")
+
+        # Try to load application icon and logo
+        try:
+            self.icon_image = tk.PhotoImage(file="IMP.png")
+            self.iconphoto(False, self.icon_image)
+        except Exception as e:
+            print(f"Error loading app icon: {e}")
+            self.icon_image = None
+
+        try:
+            logo_img = Image.open("IMP.png")
+            self.logo_ctk = ctk.CTkImage(light_image=logo_img, dark_image=logo_img, size=(120, 120))
+        except Exception as e:
+            print(f"Error loading logo image: {e}")
+            self.logo_ctk = None
 
         # Load theme icons
         try:
@@ -323,7 +338,25 @@ class MethaneAnalysisApp(ctk.CTk):
                 ctk.CTkLabel(frame, text="Feature coming soon...").pack()
 
     def create_home_tab(self, frame):
-        ctk.CTkLabel(frame, text="🇲🇽 Methane Emission Analysis - Home", font=("Arial", 18)).pack(pady=30)
+        # Display application name
+        ctk.CTkLabel(
+            frame,
+            text=(
+                "Sistema Integral de Detecci\u00f3n y Cuantificaci\u00f3n de Emisiones "
+                "de Metano (SIDEC-Metano)"
+            ),
+            font=("Arial", 20, "bold"),
+            wraplength=800,
+            justify="center",
+        ).pack(pady=(20, 10))
+
+        # Show logo if available
+        if hasattr(self, "logo_ctk") and self.logo_ctk:
+            ctk.CTkLabel(frame, image=self.logo_ctk, text="").pack(pady=10)
+
+        # Existing home label
+        ctk.CTkLabel(frame, text="🇲🇽 Methane Emission Analysis - Home", font=("Arial", 18)).pack(pady=20)
+
         try:
             home_tab = HomeImage(frame, image_path="mexico.png")
             home_tab.pack(fill="both", expand=True)
