@@ -209,8 +209,9 @@ class MethaneAnalysisApp(ctk.CTk):
 
         # Set window title bar icon
         try:
-            icon_img = tk.PhotoImage(file="CH4.png")
-            self.iconphoto(False, icon_img)
+            icon_path = os.path.join(os.path.dirname(__file__), "CH4.png")
+            icon_img = tk.PhotoImage(file=icon_path)
+            self.iconphoto(True, icon_img)
         except Exception as e:
             print(f"Error loading window icon: {e}")
 
