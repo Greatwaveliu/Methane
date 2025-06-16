@@ -235,8 +235,12 @@ class MethaneAnalysisApp(ctk.CTk):
         right_panel = ctk.CTkFrame(main_frame)
         right_panel.pack(side="right", fill="both", expand=True)
 
-        tab_button_frame = ctk.CTkFrame(right_panel)
-        tab_button_frame.pack(fill="x", pady=(0, 10))
+        # Top bar contains tab buttons on the left and theme toggle on the right
+        top_bar = ctk.CTkFrame(right_panel)
+        top_bar.pack(fill="x", pady=(0, 10))
+
+        tab_button_frame = ctk.CTkFrame(top_bar)
+        tab_button_frame.pack(side="left")
 
         button_names = [
             "Home", "Load Data", "Scatter Plot", "Histogram", "Box Plot", "Contour",
@@ -259,18 +263,11 @@ class MethaneAnalysisApp(ctk.CTk):
             btn.grid(row=row, column=col, padx=5, pady=5)
             self.tab_buttons[name] = btn
 
-        # Theme toggle button at the end of the first row
-        self.theme_button = ctk.CTkButton(
-            tab_button_frame,
-            text="",
-            width=30,
-            height=30,
-            fg_color="transparent",
-            hover_color=("gray70", "gray30"),
-            command=self.toggle_theme,
-        )
-        self.theme_button.grid(row=0, column=num_cols, padx=5, pady=5, sticky="e")
-        self.update_theme_button()
+        # Theme toggle icon on the top right
+        self.theme_icon = ctk.CTkLabel(top_bar, text="")
+        self.theme_icon.pack(side="right", padx=5)
+        self.theme_icon.bind("<Button-1>", lambda e: self.toggle_theme())
+        self.update_theme_icon()
 
         self.display_area = ctk.CTkFrame(right_panel)
         self.display_area.pack(fill="both", expand=True)
@@ -627,21 +624,21 @@ class MethaneAnalysisApp(ctk.CTk):
         self.mass_image_viewer = ImageViewer(frame)
         self.mass_image_viewer.pack(fill="both", expand=True, padx=10, pady=10)
 
-    def update_theme_button(self):
+    def update_theme_icon(self):
         if self.sun_ctk and self.moon_ctk:
             current_mode = ctk.get_appearance_mode().lower()
             if current_mode == "dark":
-                self.theme_button.configure(image=self.moon_ctk)
+                self.theme_icon.configure(image=self.moon_ctk)
             else:
-                self.theme_button.configure(image=self.sun_ctk)
+                self.theme_icon.configure(image=self.sun_ctk)
         else:
-            self.theme_button.configure(text="Toggle Theme")
+            self.theme_icon.configure(text="Toggle Theme")
 
     def toggle_theme(self):
         current_mode = ctk.get_appearance_mode().lower()
         new_mode = "light" if current_mode == "dark" else "dark"
         ctk.set_appearance_mode(new_mode)
-        self.update_theme_button()
+        self.update_theme_icon()
 
     def add_section(self, panel, title, names):
         ctk.CTkLabel(panel, text=title, font=("Arial", 14, "bold")).pack(anchor="w", padx=10, pady=(20, 0))
