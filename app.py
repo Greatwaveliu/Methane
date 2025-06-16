@@ -240,7 +240,7 @@ class MethaneAnalysisApp(ctk.CTk):
         top_bar.pack(fill="x", pady=(0, 10))
 
         tab_button_frame = ctk.CTkFrame(top_bar)
-        tab_button_frame.pack(side="left")
+        tab_button_frame.pack(side="left", anchor="nw")
 
         button_names = [
             "Home", "Load Data", "Scatter Plot", "Histogram", "Box Plot", "Contour",
@@ -265,7 +265,7 @@ class MethaneAnalysisApp(ctk.CTk):
 
         # Theme toggle icon on the top right
         self.theme_icon = ctk.CTkLabel(top_bar, text="")
-        self.theme_icon.pack(side="right", padx=5)
+        self.theme_icon.pack(side="right", padx=5, anchor="ne")
         self.theme_icon.bind("<Button-1>", lambda e: self.toggle_theme())
         self.update_theme_icon()
 
