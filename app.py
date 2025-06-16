@@ -207,6 +207,21 @@ class MethaneAnalysisApp(ctk.CTk):
         )
         self.geometry("1400x900")
 
+        # Set window title bar icon
+        try:
+            ico_path = os.path.join(os.path.dirname(__file__), "CH4.ico")
+            self.wm_iconbitmap(ico_path)
+        except Exception as e:
+            print(f"Error loading window icon with iconbitmap: {e}")
+            try:
+                png_path = os.path.join(os.path.dirname(__file__), "CH4.png")
+                icon_pil = Image.open(png_path)
+                icon_img = ImageTk.PhotoImage(icon_pil.resize((32, 32)))
+                self.iconphoto(True, icon_img)
+                self._icon_img = icon_img  # keep a reference
+            except Exception as e2:
+                print(f"Error loading window icon with iconphoto: {e2}")
+
         # Load theme icons
         try:
             sun_img = Image.open("sun.png")
