@@ -193,19 +193,18 @@ class HomeImage(ctk.CTkFrame):
         if not self.image:
             return
         canvas_w, canvas_h = event.width, event.height
-        scale = min(canvas_w / self.image.width, canvas_h / self.image.height, 1.0)
-        w, h = int(self.image.width * scale), int(self.image.height * scale)
-        resized = self.image.resize((w, h), Image.Resampling.LANCZOS)
+        # Fill the entire area, allowing distortions
+        resized = self.image.resize((max(canvas_w, 1), max(canvas_h, 1)), Image.Resampling.LANCZOS)
         self.tk_image = ImageTk.PhotoImage(resized)
         self.canvas.delete("all")
-        x = (canvas_w - w) // 2
-        y = (canvas_h - h) // 2
-        self.image_id = self.canvas.create_image(x, y, anchor="nw", image=self.tk_image)
+        self.image_id = self.canvas.create_image(0, 0, anchor="nw", image=self.tk_image)
 
 class MethaneAnalysisApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title("Methane Emission Analysis - Mexico")
+        self.title(
+            "Sistema Integral de Detección y Cuantificación de Emisiones de Metano (SIDEC-Metano)"
+        )
         self.geometry("1400x900")
 
         # Load theme icons
@@ -323,7 +322,6 @@ class MethaneAnalysisApp(ctk.CTk):
                 ctk.CTkLabel(frame, text="Feature coming soon...").pack()
 
     def create_home_tab(self, frame):
-        ctk.CTkLabel(frame, text="🇲🇽 Methane Emission Analysis - Home", font=("Arial", 18)).pack(pady=30)
         try:
             home_tab = HomeImage(frame, image_path="mexico.png")
             home_tab.pack(fill="both", expand=True)
@@ -692,10 +690,18 @@ class MethaneAnalysisApp(ctk.CTk):
     def switch_tab(self, name):
         if self.active_tab:
             self.tab_frames[self.active_tab].pack_forget()
-            self.tab_buttons[self.active_tab].configure(fg_color="transparent")
+            # restore default style for previously active button
+            self.tab_buttons[self.active_tab].configure(
+                fg_color="transparent",
+                text_color=("gray10", "gray90"),
+            )
 
         self.tab_frames[name].pack(fill="both", expand=True)
-        self.tab_buttons[name].configure(fg_color=("gray75", "gray25"))
+        # make active tab visible in both light and dark mode
+        self.tab_buttons[name].configure(
+            fg_color=("gray75", "gray25"),
+            text_color=("black", "white"),
+        )
         self.active_tab = name
 
     def _start_thread(self, target, *args):
