@@ -243,40 +243,28 @@ class MethaneAnalysisApp(ctk.CTk):
         main_frame = ctk.CTkFrame(self)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
-        left_panel = ctk.CTkFrame(main_frame, width=300)
-        left_panel.pack(side="left", fill="y", padx=(0, 10))
-        left_panel.pack_propagate(False)
-
         right_panel = ctk.CTkFrame(main_frame)
-        right_panel.pack(side="right", fill="both", expand=True)
+        right_panel.pack(fill="both", expand=True)
 
-        # Top bar contains tab buttons on the left and theme toggle on the right
+        # Top bar contains a dropdown on the left and theme toggle on the right
         top_bar = ctk.CTkFrame(right_panel)
         top_bar.pack(fill="x", pady=(0, 10))
 
-        tab_button_frame = ctk.CTkFrame(top_bar)
-        tab_button_frame.pack(side="left", anchor="nw")
-
         button_names = [
             "Home", "Load Data", "Scatter Plot", "Histogram", "Box Plot", "Contour",
-            "K-means: Lat-Lon", "K-means: Time-Lat-Lon", "K-means: Lat-Lon-Methane", 
+            "K-means: Lat-Lon", "K-means: Time-Lat-Lon", "K-means: Lat-Lon-Methane",
             "K-means: Time-Lat-Lon-Methane", "DFA", "PSA", "LSTM", "Prophet", "Estimate Mass"
         ]
 
-        num_cols = 6
-        self.tab_buttons = {}
-        for i, name in enumerate(button_names):
-            btn = ctk.CTkButton(
-                tab_button_frame,
-                text=name,
-                command=lambda n=name: self.handle_tab_click(n),
-                width=150,
-                height=30,
-            )
-            row = i // num_cols
-            col = i % num_cols
-            btn.grid(row=row, column=col, padx=5, pady=5)
-            self.tab_buttons[name] = btn
+        self.option_var = tk.StringVar(value="Home")
+        self.option_menu = ctk.CTkOptionMenu(
+            top_bar,
+            variable=self.option_var,
+            values=button_names,
+            command=self.handle_tab_click,
+            width=200,
+        )
+        self.option_menu.pack(side="left", padx=5, pady=5)
 
         # Theme toggle icon on the top right
         self.theme_icon = ctk.CTkLabel(top_bar, text="")
@@ -289,15 +277,6 @@ class MethaneAnalysisApp(ctk.CTk):
 
         self.create_tab_contents(button_names)
         self.switch_tab("Home")
-
-        self.add_section(left_panel, "Data", ["Load Data"])
-        self.add_section(left_panel, "Visualization", ["Scatter Plot", "Histogram", "Box Plot", "Contour"])
-        self.add_section(left_panel, "Clustering", [
-            "K-means: Lat-Lon", "K-means: Time-Lat-Lon",
-            "K-means: Lat-Lon-Methane", "K-means: Time-Lat-Lon-Methane"
-        ])
-        self.add_section(left_panel, "Time Series", ["DFA", "PSA", "LSTM", "Prophet"])
-        self.add_section(left_panel, "Mass Estimation", ["Estimate Mass"])
 
     def create_tab_contents(self, button_names):
         for name in button_names:
@@ -707,19 +686,11 @@ class MethaneAnalysisApp(ctk.CTk):
     def switch_tab(self, name):
         if self.active_tab:
             self.tab_frames[self.active_tab].pack_forget()
-            # restore default style for previously active button
-            self.tab_buttons[self.active_tab].configure(
-                fg_color="transparent",
-                text_color=("gray10", "gray90"),
-            )
 
         self.tab_frames[name].pack(fill="both", expand=True)
-        # make active tab visible in both light and dark mode
-        self.tab_buttons[name].configure(
-            fg_color=("gray75", "gray25"),
-            text_color=("black", "white"),
-        )
         self.active_tab = name
+        if hasattr(self, "option_var"):
+            self.option_var.set(name)
 
     def _start_thread(self, target, *args):
         """Utility to start a daemon thread."""
