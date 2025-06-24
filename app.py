@@ -703,8 +703,7 @@ class MethaneAnalysisApp(ctk.CTk):
             return
             
         scatter_patterns = [
-            'scatter_*.png',
-            '*scatter*.png'
+            'scatter*.png'
         ]
         
         image_files = []
