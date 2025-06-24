@@ -1,0 +1,13 @@
+customtkinter
+pandas
+matplotlib
+numpy
+Pillow
+seaborn
+geopandas
+contextily
+scikit-learn
+tensorflow
+prophet
+scipy
+statsmodels
