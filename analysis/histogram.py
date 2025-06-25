@@ -18,11 +18,21 @@ class HistogramAnalysis:
         mean_val = df['methane3'].mean()
         median_val = df['methane3'].median()
         std_val = df['methane3'].std()
+        min_val = df['methane3'].min()
+        max_val = df['methane3'].max()
 
         plt.axvline(mean_val, color='red', linestyle='--', label=f"Media: {mean_val:.2f}")
         plt.axvline(median_val, color='green', linestyle='--', label=f"Mediana: {median_val:.2f}")
+        plt.axvline(min_val, color='purple', linestyle=':', label=f"Mínimo: {min_val:.2f}")
+        plt.axvline(max_val, color='orange', linestyle=':', label=f"Máximo: {max_val:.2f}")
 
-        stats_text = f"Media: {mean_val:.2f}\nMediana: {median_val:.2f}\nDesv. estándar: {std_val:.2f}"
+        stats_text = (
+            f"Media: {mean_val:.2f}\n"
+            f"Mediana: {median_val:.2f}\n"
+            f"Desv. estándar: {std_val:.2f}\n"
+            f"Mínimo: {min_val:.2f}\n"
+            f"Máximo: {max_val:.2f}"
+        )
         plt.gca().text(0.95, 0.95, stats_text,
                        transform=plt.gca().transAxes,
                        fontsize=9,
