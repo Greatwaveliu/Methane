@@ -11,11 +11,29 @@ class HistogramAnalysis:
 
     @staticmethod
     def graficar_histograma_global(df, archivo='methane3_histogram.png'):
+        """Create a histogram and overlay basic statistics."""
         plt.figure(figsize=(10, 5))
         plt.hist(df['methane3'], bins=50, color='skyblue', edgecolor='black')
+
+        mean_val = df['methane3'].mean()
+        median_val = df['methane3'].median()
+        std_val = df['methane3'].std()
+
+        plt.axvline(mean_val, color='red', linestyle='--', label=f"Media: {mean_val:.2f}")
+        plt.axvline(median_val, color='green', linestyle='--', label=f"Mediana: {median_val:.2f}")
+
+        stats_text = f"Media: {mean_val:.2f}\nMediana: {median_val:.2f}\nDesv. estándar: {std_val:.2f}"
+        plt.gca().text(0.95, 0.95, stats_text,
+                       transform=plt.gca().transAxes,
+                       fontsize=9,
+                       verticalalignment='top',
+                       horizontalalignment='right',
+                       bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8))
+
         plt.title("Histograma global de concentración de metano (methane3)")
         plt.xlabel("Concentración de metano (ppb)")
         plt.ylabel("Frecuencia")
+        plt.legend()
         plt.tight_layout()
         plt.savefig(archivo, dpi=300)
         plt.close()
