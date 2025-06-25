@@ -744,8 +744,7 @@ class MethaneAnalysisApp(ctk.CTk):
             return
             
         box_patterns = [
-            '*boxplot*.png',
-            'boxplot_*.png'
+            'boxplot_*_with_mean_line.png'
         ]
         
         image_files = []
