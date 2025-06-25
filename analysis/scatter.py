@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -144,7 +145,16 @@ class ScatterAnalysis:
             except:
                 pass
             
-            return archivos_generados, None
+            # Keep only the first two generated images and remove the rest
+            files_to_keep = archivos_generados[:2]
+            for extra_file in archivos_generados[2:]:
+                try:
+                    if os.path.exists(extra_file):
+                        os.remove(extra_file)
+                except Exception:
+                    pass
+
+            return files_to_keep, None
             
         except Exception as e:
             error_msg = f"Error al generar gráficos: {str(e)}"
