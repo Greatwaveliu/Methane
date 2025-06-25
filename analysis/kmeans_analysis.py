@@ -75,17 +75,25 @@ class KMeansAnalysis:
             df[cluster_column] = kmeans.fit_predict(features_scaled)
             
             generated_files = []
-            
-            output_csv = f'tula_kmeans_{mode}_clusters.csv'
-            df.to_csv(output_csv, index=False)
-            generated_files.append(output_csv)
-            
+
+            if mode != 'lat_lon':
+                output_csv = f'tula_kmeans_{mode}_clusters.csv'
+                df.to_csv(output_csv, index=False)
+                generated_files.append(output_csv)
+
             conteos = df[cluster_column].value_counts().sort_index()
-            conteo_file = f'tula_kmeans_{mode}_conteos.txt'
-            with open(conteo_file, 'w') as f:
-                f.write(f"Cantidad de puntos por cluster (K-Means {mode}):\n")
-                f.write(str(conteos))
-            generated_files.append(conteo_file)
+            conteo_str = ", ".join(
+                f"{cl}: {cnt}" for cl, cnt in conteos.items()
+            )
+
+            if mode != 'lat_lon':
+                conteo_file = f'tula_kmeans_{mode}_conteos.txt'
+                with open(conteo_file, 'w') as f:
+                    f.write(
+                        f"Cantidad de puntos por cluster (K-Means {mode}):\n"
+                    )
+                    f.write(str(conteos))
+                generated_files.append(conteo_file)
             
             plt.figure(figsize=(12, 4))
             plt.subplot(1, 3, 1)
@@ -131,7 +139,10 @@ class KMeansAnalysis:
                 legend=True
             )
             ctx.add_basemap(ax, source=ctx.providers.CartoDB.Positron)
-            ax.set_title(f'Distribución espacial por cluster (K-Means, K={best_k}) - {mode}')
+            title = f'Distribución espacial por cluster (K-Means, K={best_k}) - {mode}'
+            if conteo_str:
+                title += f"\nConteos: {conteo_str}"
+            ax.set_title(title)
             ax.set_axis_off()
             plt.tight_layout()
             map_file = f'tula_kmeans_{mode}_space_scatter_basemap.png'
