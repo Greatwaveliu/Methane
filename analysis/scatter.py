@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -109,52 +108,8 @@ class ScatterAnalysis:
                 archivo2 = ScatterAnalysis.graficar_scatter_lat_lon(df)
                 archivos_generados.append(archivo2)
             
-            archivo3 = ScatterAnalysis.graficar_scatter_hora_dia(df)
-            archivos_generados.append(archivo3)
-            
-            try:
-                rango_alto = (df['methane3'].quantile(0.75), df['methane3'].quantile(0.95))
-                archivo4 = ScatterAnalysis.graficar_scatter_filtrado(df, rango_metano=rango_alto, 
-                                                   archivo='scatter_high_concentration.png')
-                if archivo4:
-                    archivos_generados.append(archivo4)
-            except:
-                pass
-            
-            try:
-                df_copy = df.copy()
-                df_copy['dia_semana'] = df_copy['measurement_time'].dt.dayofweek
-                dias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
-                
-                plt.figure(figsize=(12, 6))
-                for i in range(7):
-                    data_dia = df_copy[df_copy['dia_semana'] == i]
-                    if len(data_dia) > 0:
-                        plt.scatter(data_dia['measurement_time'], data_dia['methane3'], 
-                                   label=dias[i], s=8, alpha=0.6)
-                plt.xlabel('Fecha y hora de medición')
-                plt.ylabel('Concentración de metano (ppb)')
-                plt.title('Dispersión de metano por día de la semana')
-                plt.legend()
-                plt.grid(True, alpha=0.3)
-                plt.tight_layout()
-                archivo5 = 'scatter_dias_semana.png'
-                plt.savefig(archivo5, dpi=300, bbox_inches='tight')
-                plt.close()
-                archivos_generados.append(archivo5)
-            except:
-                pass
-            
-            # Keep only the first two generated images and remove the rest
-            files_to_keep = archivos_generados[:2]
-            for extra_file in archivos_generados[2:]:
-                try:
-                    if os.path.exists(extra_file):
-                        os.remove(extra_file)
-                except Exception:
-                    pass
-
-            return files_to_keep, None
+            # Only the first two scatter plots are required
+            return archivos_generados, None
             
         except Exception as e:
             error_msg = f"Error al generar gráficos: {str(e)}"
