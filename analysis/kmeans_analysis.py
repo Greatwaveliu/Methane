@@ -76,7 +76,7 @@ class KMeansAnalysis:
             
             generated_files = []
 
-            if mode != 'lat_lon':
+            if mode not in ['lat_lon', 'time_lat_lon']:
                 output_csv = f'tula_kmeans_{mode}_clusters.csv'
                 df.to_csv(output_csv, index=False)
                 generated_files.append(output_csv)
@@ -86,7 +86,7 @@ class KMeansAnalysis:
                 f"{cl}: {cnt}" for cl, cnt in conteos.items()
             )
 
-            if mode != 'lat_lon':
+            if mode not in ['lat_lon', 'time_lat_lon']:
                 conteo_file = f'tula_kmeans_{mode}_conteos.txt'
                 with open(conteo_file, 'w') as f:
                     f.write(
