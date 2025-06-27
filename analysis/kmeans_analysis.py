@@ -102,6 +102,14 @@ class KMeansAnalysis:
             axes[0].plot(K_range, wcss_list, marker='o')
             axes[0].axvline(best_k, color='purple', linestyle='--')
             axes[0].scatter(best_k, wcss_list[best_idx], color='purple', zorder=5)
+            axes[0].annotate(
+                str(best_k),
+                xy=(best_k, wcss_list[best_idx]),
+                xytext=(0, 8),
+                textcoords='offset points',
+                ha='center',
+                color='purple'
+            )
             axes[0].set_title('WCSS vs K')
             axes[0].set_xlabel('Número de clusters (K)')
             axes[0].set_ylabel('WCSS')
@@ -110,6 +118,14 @@ class KMeansAnalysis:
             axes[1].plot(K_range, silhouette_list, marker='o', color='green')
             axes[1].axvline(best_k, color='purple', linestyle='--')
             axes[1].scatter(best_k, silhouette_list[best_idx], color='purple', zorder=5)
+            axes[1].annotate(
+                str(best_k),
+                xy=(best_k, silhouette_list[best_idx]),
+                xytext=(0, 8),
+                textcoords='offset points',
+                ha='center',
+                color='purple'
+            )
             axes[1].set_title('Silhouette Score vs K')
             axes[1].set_xlabel('Número de clusters (K)')
             axes[1].set_ylabel('Silhouette Score')
@@ -118,6 +134,14 @@ class KMeansAnalysis:
             axes[2].plot(K_range, db_index_list, marker='o', color='red')
             axes[2].axvline(best_k, color='purple', linestyle='--')
             axes[2].scatter(best_k, db_index_list[best_idx], color='purple', zorder=5)
+            axes[2].annotate(
+                str(best_k),
+                xy=(best_k, db_index_list[best_idx]),
+                xytext=(0, 8),
+                textcoords='offset points',
+                ha='center',
+                color='purple'
+            )
             axes[2].set_title('Davies-Bouldin Index vs K')
             axes[2].set_xlabel('Número de clusters (K)')
             axes[2].set_ylabel('DB Index')
