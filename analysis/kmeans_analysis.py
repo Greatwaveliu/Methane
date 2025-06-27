@@ -65,9 +65,13 @@ class KMeansAnalysis:
                 silhouette_list.append(silhouette)
                 db_index_list.append(db_index)
             
-            best_k_candidates = np.where(silhouette_list == max(silhouette_list))[0]
+            silhouette_arr = np.array(silhouette_list)
+            db_index_arr = np.array(db_index_list)
+            best_k_candidates = np.where(
+                silhouette_arr == silhouette_arr.max()
+            )[0]
             if len(best_k_candidates) > 1:
-                best_k = K_range[best_k_candidates[np.argmin([db_index_list[i] for i in best_k_candidates])]]
+                best_k = K_range[np.argmin(db_index_arr[best_k_candidates])]
             else:
                 best_k = K_range[best_k_candidates[0]]
             
