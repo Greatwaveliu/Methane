@@ -20,16 +20,17 @@ highlight the chosen cluster count using a dashed vertical line and a purple
 scatter marker. Each plot now labels the marker with text like ``K = 3`` placed
 to the right of the point, making the optimal cluster number easy to identify.
 
-For the ``lat_lon_methane`` mode only three plots are produced:
+For the ``lat_lon_methane`` mode four plots are produced:
 ``tula_kmeans_lat_lon_methane_metricas_vs_K.png``,
-``tula_kmeans_lat_lon_methane_space_scatter_basemap.png`` and
-``tula_methane3_box_swarmplot_lat_lon_methane_cluster.png``. No CSV or text
-files are saved and intermediate methane histogram or boxplot images are not
-generated.
+``tula_kmeans_lat_lon_methane_space_scatter_basemap.png``,
+``tula_methane3_box_swarmplot_lat_lon_methane_cluster.png`` and
+``tula_methane3_stacked_hist_lat_lon_methane_cluster.png``. No CSV or text
+files are saved and intermediate methane boxplot images are not generated.
 
-In ``time_lat_lon_methane`` mode only four plots are produced:
+In ``time_lat_lon_methane`` mode five plots are produced:
 ``tula_kmeans_time_lat_lon_methane_metricas_vs_K.png``,
 ``tula_kmeans_time_lat_lon_methane_space_scatter_basemap.png``,
-``tula_kmeans_time_lat_lon_methane_time_scatter.png`` and
-``tula_methane3_box_swarmplot_time_lat_lon_methane_cluster.png``. Other plots
+``tula_kmeans_time_lat_lon_methane_time_scatter.png``,
+``tula_methane3_box_swarmplot_time_lat_lon_methane_cluster.png`` and
+``tula_methane3_stacked_hist_time_lat_lon_methane_cluster.png``. Other plots
 as well as CSV or text files are omitted.
