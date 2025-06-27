@@ -330,6 +330,8 @@ class KMeansAnalysis:
                     bins=bins,
                     stacked=True,
                     label=[f'Cluster {cl}' for cl in clusters],
+                    edgecolor='black',
+                    alpha=0.7,
                 )
                 plt.title(
                     f'Distribuci\u00f3n apilada de methane3 por cluster (K={best_k}) - {mode}'

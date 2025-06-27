@@ -20,10 +20,10 @@ highlight the chosen cluster count using a dashed vertical line and a purple
 scatter marker. Each plot now labels the marker with text like ``K = 3`` placed
 to the right of the point, making the optimal cluster number easy to identify.
 
-Each analysis also saves a final histogram. When methane data is present the
-histogram displays the stacked distribution of ``methane3`` values for each
-cluster, so the methane concentration ranges can be compared directly.
-Otherwise a simple bar chart of cluster counts is produced.
+Each analysis also saves a final histogram. When methane data is available, the
+plot now stacks the ``methane3`` distributions for all clusters in a single
+histogram, making the concentration ranges easy to compare. Otherwise a simple
+bar chart of cluster counts is produced.
 
 For the ``lat_lon_methane`` mode four plots are produced:
 ``tula_kmeans_lat_lon_methane_metricas_vs_K.png``,
