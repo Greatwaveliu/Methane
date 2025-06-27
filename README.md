@@ -14,3 +14,7 @@ Similarly, for the `time_lat_lon` mode the analysis does not generate
 `tula_kmeans_time_lat_lon_conteos.txt`. The cluster count statistics that would
 normally be stored in the text file are displayed directly in the title of the
 `tula_kmeans_time_lat_lon_space_scatter_basemap.png` plot.
+
+The WCSS, Silhouette Score and Davies-Bouldin Index plots for all K-means modes
+now include a dashed marker indicating the chosen cluster count so it is easy to
+identify the selected **K** value.
