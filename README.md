@@ -7,29 +7,39 @@ deviation, minimum and maximum) on the generated plot.
 
 For K-means clustering in `lat_lon` mode, the analysis no longer outputs the
 `tula_kmeans_lat_lon_clusters.csv` or `tula_kmeans_lat_lon_conteos.txt` files.
-Cluster counts are shown in the title of the spatial scatter plot.
+Cluster counts are shown in the title of the spatial scatter plot. Three plots
+are produced:
+``tula_kmeans_lat_lon_metricas_vs_K.png``,
+``tula_kmeans_lat_lon_space_scatter_basemap.png`` and
+``tula_methane3_stacked_hist_lat_lon_cluster.png``.
 
 Similarly, for the `time_lat_lon` mode the analysis does not generate
 `tula_kmeans_time_lat_lon_clusters.csv` or
 `tula_kmeans_time_lat_lon_conteos.txt`. The cluster count statistics that would
 normally be stored in the text file are displayed directly in the title of the
-`tula_kmeans_time_lat_lon_space_scatter_basemap.png` plot.
+`tula_kmeans_time_lat_lon_space_scatter_basemap.png` plot. Four plots are
+produced:
+``tula_kmeans_time_lat_lon_metricas_vs_K.png``,
+``tula_kmeans_time_lat_lon_space_scatter_basemap.png``,
+``tula_kmeans_time_lat_lon_time_scatter.png`` and
+``tula_methane3_stacked_hist_time_lat_lon_cluster.png``.
 
 The WCSS, Silhouette Score and Davies-Bouldin Index plots for all K-means modes
 highlight the chosen cluster count using a dashed vertical line and a purple
 scatter marker. Each plot now labels the marker with text like ``K = 3`` placed
 to the right of the point, making the optimal cluster number easy to identify.
 
-For the ``lat_lon_methane`` mode only three plots are produced:
+For the ``lat_lon_methane`` mode four plots are produced:
 ``tula_kmeans_lat_lon_methane_metricas_vs_K.png``,
-``tula_kmeans_lat_lon_methane_space_scatter_basemap.png`` and
-``tula_methane3_box_swarmplot_lat_lon_methane_cluster.png``. No CSV or text
-files are saved and intermediate methane histogram or boxplot images are not
-generated.
+``tula_kmeans_lat_lon_methane_space_scatter_basemap.png``,
+``tula_methane3_box_swarmplot_lat_lon_methane_cluster.png`` and
+``tula_methane3_stacked_hist_lat_lon_methane_cluster.png``. No CSV or text
+files are saved and intermediate methane boxplot images are not generated.
 
-In ``time_lat_lon_methane`` mode only four plots are produced:
+In ``time_lat_lon_methane`` mode five plots are produced:
 ``tula_kmeans_time_lat_lon_methane_metricas_vs_K.png``,
 ``tula_kmeans_time_lat_lon_methane_space_scatter_basemap.png``,
-``tula_kmeans_time_lat_lon_methane_time_scatter.png`` and
-``tula_methane3_box_swarmplot_time_lat_lon_methane_cluster.png``. Other plots
+``tula_kmeans_time_lat_lon_methane_time_scatter.png``,
+``tula_methane3_box_swarmplot_time_lat_lon_methane_cluster.png`` and
+``tula_methane3_stacked_hist_time_lat_lon_methane_cluster.png``. Other plots
 as well as CSV or text files are omitted.
