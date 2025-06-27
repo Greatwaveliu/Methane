@@ -16,9 +16,16 @@ class KMeansAnalysis:
         columns = ['latitude', 'longitude']
         if include_time:
             columns.append('measurement_time')
-        if include_methane:
-            columns.append('methane3')
-        df = pd.read_csv(ruta_archivo, usecols=columns, parse_dates=['measurement_time'] if include_time else None)
+
+        # Always attempt to load methane3 so that histogram plots can be
+        # generated even when methane is not part of the clustering features.
+        optional_cols = ['methane3']
+
+        df = pd.read_csv(
+            ruta_archivo,
+            usecols=lambda c: c in columns + optional_cols,
+            parse_dates=['measurement_time'] if include_time else None,
+        )
         df.dropna(subset=columns, inplace=True)
         return df
 
@@ -65,9 +72,13 @@ class KMeansAnalysis:
                 silhouette_list.append(silhouette)
                 db_index_list.append(db_index)
             
-            best_k_candidates = np.where(silhouette_list == max(silhouette_list))[0]
+            silhouette_arr = np.array(silhouette_list)
+            db_index_arr = np.array(db_index_list)
+            best_k_candidates = np.where(
+                silhouette_arr == silhouette_arr.max()
+            )[0]
             if len(best_k_candidates) > 1:
-                best_k = K_range[best_k_candidates[np.argmin([db_index_list[i] for i in best_k_candidates])]]
+                best_k = K_range[np.argmin(db_index_arr[best_k_candidates])]
             else:
                 best_k = K_range[best_k_candidates[0]]
             
@@ -208,8 +219,10 @@ class KMeansAnalysis:
                 plt.close()
                 generated_files.append(time_scatter_file)
             
-            if include_methane:
-                if mode in ['lat_lon_methane', 'time_lat_lon_methane']:
+            has_methane = 'methane3' in df.columns
+
+            if has_methane:
+                if include_methane and mode in ['lat_lon_methane', 'time_lat_lon_methane']:
                     plt.figure(figsize=(10, 6))
                     sns.boxplot(
                         data=df,
@@ -236,49 +249,26 @@ class KMeansAnalysis:
                     plt.savefig(swarm_file, dpi=300)
                     plt.close()
                     generated_files.append(swarm_file)
-                else:
-                    clusters = sorted(df[cluster_column].unique())
-                    for cl in clusters:
-                        subset = df[df[cluster_column] == cl]['methane3']
-                        if not subset.empty:
-                            plt.figure(figsize=(6, 4))
-                            plt.hist(
-                                subset,
-                                bins=30,
-                                edgecolor='black'
-                            )
-                            plt.title(
-                                f'Distribución de methane3 en el cluster {cl} - {mode}'
-                            )
-                            plt.xlabel('methane3 (ppb)')
-                            plt.ylabel('Cantidad de puntos')
-                            plt.grid(axis='y', linestyle='--', alpha=0.3)
-                            plt.tight_layout()
-                            hist_file = (
-                                f'tula_methane3_hist_{mode}_cluster_{cl}.png'
-                            )
-                            plt.savefig(hist_file, dpi=300)
-                            plt.close()
-                            generated_files.append(hist_file)
-
-                    plt.figure(figsize=(10, 6))
-                    sns.boxplot(
-                        data=df,
-                        x=cluster_column,
-                        y='methane3',
-                        palette='tab10'
-                    )
-                    plt.title(
-                        f'Distribución de methane3 por cluster (K={best_k}) - {mode}'
-                    )
-                    plt.xlabel('Cluster')
-                    plt.ylabel('methane3 (ppb)')
-                    plt.grid(axis='y', linestyle='--', alpha=0.3)
-                    plt.tight_layout()
-                    box_file = f'tula_methane3_boxplot_{mode}_cluster.png'
-                    plt.savefig(box_file, dpi=300)
-                    plt.close()
-                    generated_files.append(box_file)
+                elif not include_methane:
+                    if mode not in ['lat_lon', 'time_lat_lon']:
+                        plt.figure(figsize=(10, 6))
+                        sns.boxplot(
+                            data=df,
+                            x=cluster_column,
+                            y='methane3',
+                            palette='tab10'
+                        )
+                        plt.title(
+                            f'Distribución de methane3 por cluster (K={best_k}) - {mode}'
+                        )
+                        plt.xlabel('Cluster')
+                        plt.ylabel('methane3 (ppb)')
+                        plt.grid(axis='y', linestyle='--', alpha=0.3)
+                        plt.tight_layout()
+                        box_file = f'tula_methane3_boxplot_{mode}_cluster.png'
+                        plt.savefig(box_file, dpi=300)
+                        plt.close()
+                        generated_files.append(box_file)
 
                     plt.figure(figsize=(10, 6))
                     sns.boxplot(
@@ -307,17 +297,46 @@ class KMeansAnalysis:
                     plt.close()
                     generated_files.append(swarm_file)
 
-                    resumen = (
-                        df.groupby(cluster_column)['methane3'].describe().round(2)
-                    )
-                    resumen.reset_index(inplace=True)
-                    resumen.columns.name = None
-                    resumen.to_csv(
-                        f'tula_methane3_resumen_por_cluster_{mode}.csv', index=False
-                    )
-                    generated_files.append(
-                        f'tula_methane3_resumen_por_cluster_{mode}.csv'
-                    )
+                    if mode not in ['lat_lon', 'time_lat_lon']:
+                        resumen = (
+                            df.groupby(cluster_column)['methane3'].describe().round(2)
+                        )
+                        resumen.reset_index(inplace=True)
+                        resumen.columns.name = None
+                        resumen.to_csv(
+                            f'tula_methane3_resumen_por_cluster_{mode}.csv', index=False
+                        )
+                        generated_files.append(
+                            f'tula_methane3_resumen_por_cluster_{mode}.csv'
+                        )
+
+                # Stacked histogram of methane3 by cluster (common for all modes)
+                clusters = sorted(df[cluster_column].unique())
+                data_arrays = [df[df[cluster_column] == cl]['methane3'] for cl in clusters]
+                plt.figure(figsize=(10, 6))
+                colors = sns.color_palette('tab10', len(clusters))
+                plt.hist(
+                    data_arrays,
+                    bins=30,
+                    stacked=True,
+                    label=[f'Cluster {cl}' for cl in clusters],
+                    color=colors,
+                    edgecolor='black'
+                )
+                plt.title(
+                    f'Distribución apilada de methane3 por cluster (K={best_k}) - {mode}'
+                )
+                plt.xlabel('methane3 (ppb)')
+                plt.ylabel('Cantidad de puntos')
+                plt.legend()
+                plt.grid(axis='y', linestyle='--', alpha=0.3)
+                plt.tight_layout()
+                stacked_hist_file = (
+                    f'tula_methane3_stacked_hist_{mode}_cluster.png'
+                )
+                plt.savefig(stacked_hist_file, dpi=300)
+                plt.close()
+                generated_files.append(stacked_hist_file)
             
             return generated_files, None
             
