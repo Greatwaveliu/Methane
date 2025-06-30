@@ -51,7 +51,7 @@ class MassEstimation:
             yearly_plot = 'yearly_mass.png'
 
             fig_w, ax_w = plt.subplots(figsize=(10, 4))
-            weekly_mass.plot(kind='bar', ax=ax_w, color='skyblue')
+            ax_w.bar(range(len(weekly_mass)), weekly_mass.values, color='skyblue', edgecolor='black')
             step_w = max(1, len(weekly_mass) // 10)
             ax_w.set_xticks(range(0, len(weekly_mass), step_w))
             ax_w.set_xticklabels(weekly_mass.index[::step_w], rotation=45, ha='right')
