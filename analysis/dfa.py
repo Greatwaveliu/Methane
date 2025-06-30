@@ -34,7 +34,24 @@ class DFAAnalysis:
             ax.loglog(scales, F, 'o', label='Datos')
             ax.loglog(scales, np.exp(intercept)*scales**H, label=f'Ajuste H={H:.3f}')
             ax.set_xlabel('Escala n')
-            ax.set_ylabel('F(n)')
+            ax.set_ylabel('Función de fluctuación F(n)')
+            note = (
+                'H=0.5: uncorrelated (white noise)\n'
+                'H <0.5: anti-correlated\n'
+                '0.5<H <1: long-range correlations (persistent)\n'
+                'H=1: 1/f noise (pink noise)\n'
+                'H>1: non-stationary behavior (random walk, Brownian motion)'
+            )
+            ax.text(
+                0.95,
+                0.05,
+                note,
+                transform=ax.transAxes,
+                fontsize=8,
+                verticalalignment='bottom',
+                horizontalalignment='right',
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8)
+            )
             ax.legend()
             fig.tight_layout()
             fig.savefig("DFA.png", dpi=300, bbox_inches='tight')
