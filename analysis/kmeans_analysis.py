@@ -35,10 +35,16 @@ class KMeansAnalysis:
             os.makedirs('clusters_espaciales', exist_ok=True)
             os.makedirs('subclusters_methane3', exist_ok=True)
             
-            include_time = 'time' in mode.lower()
             include_methane = 'methane' in mode.lower()
-            
-            df = KMeansAnalysis.cargar_datos(data_file, include_time, include_methane)
+
+            # Always load the measurement_time column so that methane mass
+            # can be estimated for each cluster regardless of the clustering
+            # features used.
+            df = KMeansAnalysis.cargar_datos(
+                data_file, include_time=True, include_methane=include_methane
+            )
+
+            include_time = 'time' in mode.lower()
             
             if mode == 'time_lat_lon':
                 df['timestamp'] = pd.to_datetime(df['measurement_time']).view('int64') // 10**9
@@ -337,7 +343,47 @@ class KMeansAnalysis:
                 plt.savefig(stacked_hist_file, dpi=300)
                 plt.close()
                 generated_files.append(stacked_hist_file)
-            
+
+            # Estimate methane mass per cluster and generate a stacked yearly
+            # bar chart. Only run this step when methane concentrations and
+            # measurement times are available.
+            if has_methane and 'measurement_time' in df.columns:
+                M_CH4 = 16.04e-3
+                M_air = 28.97e-3
+                rho_air = 1.2
+                mixing_height_m = 1000
+                pixel_area_m2 = 1e6
+
+                def ppb_to_kg_m3(ppb):
+                    return ppb * (1e-9 * M_CH4 * rho_air / M_air)
+
+                df['methane_mass_kg'] = (
+                    ppb_to_kg_m3(df['methane3']) * pixel_area_m2 * mixing_height_m
+                )
+                df['year'] = pd.to_datetime(df['measurement_time']).dt.year
+                yearly_mass = (
+                    df.groupby(['year', cluster_column])['methane_mass_kg']
+                    .sum()
+                    .unstack(fill_value=0)
+                    / 1000
+                )
+
+                ax = yearly_mass.plot(
+                    kind='bar', stacked=True, figsize=(10, 6), colormap='tab10'
+                )
+                ax.set_xlabel('Año')
+                ax.set_ylabel('Masa total (toneladas)')
+                ax.set_title(
+                    f'Masa anual estimada de metano por cluster (K={best_k}) - {mode}'
+                )
+                plt.tight_layout()
+                mass_yearly_file = (
+                    f'tula_methane_mass_yearly_stacked_{mode}_cluster.png'
+                )
+                plt.savefig(mass_yearly_file, dpi=300)
+                plt.close()
+                generated_files.append(mass_yearly_file)
+
             return generated_files, None
             
         except Exception as e:
