@@ -708,20 +708,28 @@ class MethaneAnalysisApp(ctk.CTk):
         thread.daemon = True
         thread.start()
 
+    def _gather_ordered_images(self, patterns):
+        """Return existing image files matching patterns preserving order."""
+        seen = set()
+        ordered = []
+        for pattern in patterns:
+            for path in sorted(glob.glob(pattern)):
+                if path not in seen and os.path.exists(path):
+                    ordered.append(path)
+                    seen.add(path)
+        return ordered
+
     def refresh_scatter_images(self):
         if not hasattr(self, 'scatter_image_viewer'):
             return
-            
+
         scatter_patterns = [
-            'scatter*.png'
+            'scatter_tendencia_methane_tiempo.png',
+            'scatter_lat_lon_methane.png'
         ]
-        
-        image_files = []
-        for pattern in scatter_patterns:
-            image_files.extend(glob.glob(pattern))
-        
-        image_files = sorted(list(set(image_files)))
-        
+
+        image_files = self._gather_ordered_images(scatter_patterns)
+
         if image_files:
             self.scatter_image_viewer.load_images(image_files)
             self.scatter_status.configure(text=f"✅ Found {len(image_files)} scatter plot(s)")
@@ -731,18 +739,13 @@ class MethaneAnalysisApp(ctk.CTk):
     def refresh_histogram_images(self):
         if not hasattr(self, 'histogram_image_viewer'):
             return
-            
+
         histogram_patterns = [
-            '*histogram*.png',
-            'histogram_*.png'
+            'methane3_histogram.png'
         ]
-        
-        image_files = []
-        for pattern in histogram_patterns:
-            image_files.extend(glob.glob(pattern))
-        
-        image_files = sorted(list(set(image_files)))
-        
+
+        image_files = self._gather_ordered_images(histogram_patterns)
+
         if image_files:
             self.histogram_image_viewer.load_images(image_files)
             self.histogram_status.configure(text=f"✅ Found {len(image_files)} histogram(s)")
@@ -752,17 +755,15 @@ class MethaneAnalysisApp(ctk.CTk):
     def refresh_box_images(self):
         if not hasattr(self, 'box_image_viewer'):
             return
-            
+
         box_patterns = [
-            'boxplot_*_with_mean_line.png'
+            'boxplot_weekly_with_mean_line.png',
+            'boxplot_monthly_with_mean_line.png',
+            'boxplot_yearly_with_mean_line.png'
         ]
-        
-        image_files = []
-        for pattern in box_patterns:
-            image_files.extend(glob.glob(pattern))
-        
-        image_files = sorted(list(set(image_files)))
-        
+
+        image_files = self._gather_ordered_images(box_patterns)
+
         if image_files:
             self.box_image_viewer.load_images(image_files)
             self.box_status.configure(text=f"✅ Found {len(image_files)} box plot(s)")
@@ -772,18 +773,14 @@ class MethaneAnalysisApp(ctk.CTk):
     def refresh_contour_images(self):
         if not hasattr(self, 'contour_image_viewer'):
             return
-            
+
         contour_patterns = [
-            '*contour*.png',
-            'contorno_*.png'
+            'contorno_simple.png',
+            'contorno_mapa_base.png'
         ]
-        
-        image_files = []
-        for pattern in contour_patterns:
-            image_files.extend(glob.glob(pattern))
-        
-        image_files = sorted(list(set(image_files)))
-        
+
+        image_files = self._gather_ordered_images(contour_patterns)
+
         if image_files:
             self.contour_image_viewer.load_images(image_files)
             self.contour_status.configure(text=f"✅ Found {len(image_files)} contour plot(s)")
@@ -794,25 +791,19 @@ class MethaneAnalysisApp(ctk.CTk):
         viewer = getattr(self, f'kmeans_{mode}_image_viewer', None)
         if not viewer:
             return
-            
+
         kmeans_patterns = [
-            f'*kmeans_{mode}*.png',
-            f'*_{mode}_cluster*.png',
             f'tula_kmeans_{mode}_metricas_vs_K.png',
             f'tula_kmeans_{mode}_space_scatter_basemap.png',
             f'tula_kmeans_{mode}_time_scatter.png',
-            f'tula_methane3_stacked_hist_{mode}_cluster.png',
-            f'tula_methane_mass_yearly_stacked_{mode}_cluster.png',
             f'tula_methane3_boxplot_{mode}_cluster.png',
-            f'tula_methane3_box_swarmplot_{mode}_cluster.png'
+            f'tula_methane3_box_swarmplot_{mode}_cluster.png',
+            f'tula_methane3_stacked_hist_{mode}_cluster.png',
+            f'tula_methane_mass_yearly_stacked_{mode}_cluster.png'
         ]
-        
-        image_files = []
-        for pattern in kmeans_patterns:
-            image_files.extend(glob.glob(pattern))
-        
-        image_files = sorted(list(set(image_files)))
-        
+
+        image_files = self._gather_ordered_images(kmeans_patterns)
+
         if image_files:
             viewer.load_images(image_files)
             getattr(self, f'kmeans_{mode}_status').configure(text=f"✅ Found {len(image_files)} K-means plot(s)")
@@ -820,7 +811,7 @@ class MethaneAnalysisApp(ctk.CTk):
             getattr(self, f'kmeans_{mode}_status').configure(text="No K-means images found")
 
     def refresh_dfa_images(self):
-        image_files = [f for f in glob.glob("DFA*.png") if os.path.exists(f)]
+        image_files = self._gather_ordered_images(['DFA.png'])
         if image_files:
             self.dfa_image_viewer.load_images(image_files)
             self.dfa_status.configure(text=f"✅ Found {len(image_files)} DFA plot(s)")
@@ -828,7 +819,7 @@ class MethaneAnalysisApp(ctk.CTk):
             self.dfa_status.configure(text="No DFA images found")
 
     def refresh_psa_images(self):
-        image_files = [f for f in glob.glob("*psd*.png") + glob.glob("*detrended*.png") + glob.glob("*autocorrelation*.png") if os.path.exists(f)]
+        image_files = self._gather_ordered_images(['loglog_psd_with_beta.png'])
         if image_files:
             self.psa_image_viewer.load_images(image_files)
             self.psa_status.configure(text=f"✅ Found {len(image_files)} PSA plot(s)")
@@ -838,18 +829,11 @@ class MethaneAnalysisApp(ctk.CTk):
     def refresh_lstm_images(self):
         if not hasattr(self, 'lstm_image_viewer'):
             return
-            
-        lstm_patterns = [
-            'LSTM*.png',
-            '*LSTM*.png'
-        ]
-        
-        image_files = []
-        for pattern in lstm_patterns:
-            image_files.extend(glob.glob(pattern))
-        
-        image_files = sorted(list(set(image_files)))
-        
+
+        lstm_patterns = ['LSTM.png']
+
+        image_files = self._gather_ordered_images(lstm_patterns)
+
         if image_files:
             self.lstm_image_viewer.load_images(image_files)
             self.lstm_status.configure(text=f"✅ Found {len(image_files)} LSTM plot(s)")
@@ -859,18 +843,11 @@ class MethaneAnalysisApp(ctk.CTk):
     def refresh_prophet_images(self):
         if not hasattr(self, 'prophet_image_viewer'):
             return
-            
-        prophet_patterns = [
-            'Prophet*.png',
-            '*Prophet*.png'
-        ]
-        
-        image_files = []
-        for pattern in prophet_patterns:
-            image_files.extend(glob.glob(pattern))
-        
-        image_files = sorted(list(set(image_files)))
-        
+
+        prophet_patterns = ['Prophet.png', 'Prophet components.png']
+
+        image_files = self._gather_ordered_images(prophet_patterns)
+
         if image_files:
             self.prophet_image_viewer.load_images(image_files)
             self.prophet_status.configure(text=f"✅ Found {len(image_files)} Prophet plot(s)")
@@ -880,21 +857,17 @@ class MethaneAnalysisApp(ctk.CTk):
     def refresh_mass_images(self):
         if not hasattr(self, 'mass_image_viewer'):
             return
-            
+
         # Only show images produced by the mass estimation analysis itself.
         mass_patterns = [
-            'methane_mass_map*.png',
+            'methane_mass_map.png',
             'weekly_mass.png',
             'monthly_mass.png',
             'yearly_mass.png'
         ]
-        
-        image_files = []
-        for pattern in mass_patterns:
-            image_files.extend(glob.glob(pattern))
-        
-        image_files = sorted(list(set(image_files)))
-        
+
+        image_files = self._gather_ordered_images(mass_patterns)
+
         if image_files:
             self.mass_image_viewer.load_images(image_files)
             self.mass_status.configure(text=f"✅ Found {len(image_files)} mass estimation plot(s)")
