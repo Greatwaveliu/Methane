@@ -882,7 +882,9 @@ class MethaneAnalysisApp(ctk.CTk):
             
         mass_patterns = [
             'methane_mass_map*.png',
-            '*mass*.png'
+            'weekly_mass.png',
+            'monthly_mass.png',
+            'yearly_mass.png'
         ]
         
         image_files = []
