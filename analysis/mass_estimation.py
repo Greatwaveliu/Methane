@@ -8,7 +8,7 @@ class MassEstimation:
     @staticmethod
     def run_mass_estimation(data_file):
         try:
-            df = pd.read_csv(data_file)
+            df = pd.read_csv(data_file, parse_dates=["measurement_time"])
             
             # Check for required columns
             required_columns = ['methane3', 'longitude', 'latitude']
@@ -32,24 +32,83 @@ class MassEstimation:
             
             # Calculate methane mass per pixel (kg)
             df['methane_mass_kg'] = df['methane_kg_m3'] * pixel_area_m2 * mixing_height_m
-            
+
             # Total methane mass (tons)
             total_mass_tons = df['methane_mass_kg'].sum() / 1000
-            
-            # Visualization
-            gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df['longitude'], df['latitude']), crs='EPSG:4326')
-            gdf = gdf.to_crs(epsg=3857)  # Web Mercator
-            
+
+            # Temporal aggregations for plotting
+            df_time = df.set_index('measurement_time')
+            weekly_mass = df_time['methane_mass_kg'].resample('W').sum() / 1000
+            monthly_mass = df_time['methane_mass_kg'].resample('M').sum() / 1000
+            yearly_mass = df_time['methane_mass_kg'].resample('Y').sum() / 1000
+
+            weekly_mass.index = weekly_mass.index.strftime('%Y-%U')
+            monthly_mass.index = monthly_mass.index.strftime('%Y-%m')
+            yearly_mass.index = yearly_mass.index.strftime('%Y')
+
+            weekly_plot = 'weekly_mass.png'
+            monthly_plot = 'monthly_mass.png'
+            yearly_plot = 'yearly_mass.png'
+
+            fig_w, ax_w = plt.subplots(figsize=(10, 4))
+            weekly_mass.plot(kind='bar', ax=ax_w, color='skyblue')
+            step_w = max(1, len(weekly_mass) // 10)
+            ax_w.set_xticks(range(0, len(weekly_mass), step_w))
+            ax_w.set_xticklabels(weekly_mass.index[::step_w], rotation=45, ha='right')
+            ax_w.set_xlabel('Semana (A\u00f1o-Semana)')
+            ax_w.set_ylabel('Masa total (toneladas)')
+            ax_w.set_title('Masa semanal estimada de metano')
+            plt.tight_layout()
+            fig_w.savefig(weekly_plot, dpi=300)
+            plt.close(fig_w)
+
+            fig_m, ax_m = plt.subplots(figsize=(10, 4))
+            monthly_mass.plot(kind='bar', ax=ax_m, color='green')
+            step_m = max(1, len(monthly_mass) // 10)
+            ax_m.set_xticks(range(0, len(monthly_mass), step_m))
+            ax_m.set_xticklabels(monthly_mass.index[::step_m], rotation=45, ha='right')
+            ax_m.set_xlabel('Mes (A\u00f1o-Mes)')
+            ax_m.set_ylabel('Masa total (toneladas)')
+            ax_m.set_title('Masa mensual estimada de metano')
+            plt.tight_layout()
+            fig_m.savefig(monthly_plot, dpi=300)
+            plt.close(fig_m)
+
+            fig_y, ax_y = plt.subplots(figsize=(8, 4))
+            yearly_mass.plot(kind='bar', ax=ax_y, color='purple')
+            ax_y.set_xlabel('A\u00f1o')
+            ax_y.set_ylabel('Masa total (toneladas)')
+            ax_y.set_title('Masa anual estimada de metano')
+            ax_y.set_xticklabels(ax_y.get_xticklabels(), rotation=45, ha='right')
+            plt.tight_layout()
+            fig_y.savefig(yearly_plot, dpi=300)
+            plt.close(fig_y)
+
+            # Spatial visualization
+            gdf = gpd.GeoDataFrame(
+                df,
+                geometry=gpd.points_from_xy(df["longitude"], df["latitude"]),
+                crs="EPSG:4326",
+            )
+
             fig, ax = plt.subplots(figsize=(10, 10))
-            gdf.plot(column='methane_mass_kg', ax=ax, cmap='viridis', markersize=20, legend=True)
-            ctx.add_basemap(ax, source=ctx.providers.CartoDB.Positron)
+            gdf.plot(
+                column="methane_mass_kg",
+                ax=ax,
+                cmap="viridis",
+                markersize=20,
+                legend=True,
+            )
+            ctx.add_basemap(ax, source=ctx.providers.CartoDB.Positron, crs=gdf.crs)
+            ax.set_xlabel("Longitud")
+            ax.set_ylabel("Latitud")
             ax.set_title(f"Spatial Distribution of Methane Mass (kg)\nTotal Estimated: {total_mass_tons:.2f} tons", fontsize=14)
             plt.tight_layout()
-            plot_file = "methane_mass_map.png"
+            plot_file = 'methane_mass_map.png'
             plt.savefig(plot_file, dpi=300)
             plt.close()
-            
-            return [plot_file], total_mass_tons, None
+
+            return [plot_file, weekly_plot, monthly_plot, yearly_plot], total_mass_tons, None
         except Exception as e:
             return [], None, str(e)
 
