@@ -9,7 +9,6 @@ class PSAAnalysis:
             import matplotlib.pyplot as plt
             from scipy.fft import fft, fftfreq
             from scipy.stats import linregress
-            from statsmodels.tsa.stattools import acf, kpss
 
             df = pd.read_csv(data_file, parse_dates=['measurement_time'])
             df.sort_values('measurement_time', inplace=True)
@@ -18,33 +17,6 @@ class PSAAnalysis:
             slope, intercept, *_ = linregress(df['time_numeric'], df['methane3'])
             df['methane3_detrended'] = df['methane3'] - (slope * df['time_numeric'] + intercept)
 
-            plt.figure(figsize=(12, 4))
-            plt.plot(df['measurement_time'], df['methane3'], label='Original', alpha=0.6)
-            plt.plot(df['measurement_time'], df['methane3_detrended'], label='Detrended')
-            plt.title('Methane Concentration: Original vs Detrended')
-            plt.xlabel('Time')
-            plt.ylabel('Methane3')
-            plt.legend()
-            plt.tight_layout()
-            plt.savefig('methane_original_vs_detrended.png', dpi=300)
-            plt.close()
-
-            acf_values = acf(df['methane3_detrended'], nlags=100)
-            plt.figure(figsize=(10, 4))
-            plt.stem(range(len(acf_values)), acf_values)
-            plt.title('Autocorrelation of Detrended Methane3')
-            plt.xlabel('Lag')
-            plt.ylabel('ACF')
-            plt.tight_layout()
-            plt.savefig('autocorrelation_detrended_methane3.png', dpi=300)
-            plt.close()
-
-            stat, p_value, _, crit_vals = kpss(df['methane3_detrended'], regression='c')
-            with open('kpss_results.txt', 'w') as f:
-                f.write(f'KPSS Test Statistic: {stat:.4f}\n')
-                f.write(f'p-value: {p_value:.4f}\n')
-                for k, v in crit_vals.items():
-                    f.write(f'Critical Value {k}: {v:.4f}\n')
 
             signal = df['methane3_detrended'].to_numpy()
             n = len(signal)
@@ -57,6 +29,14 @@ class PSAAnalysis:
             log_power = np.log10(power_spectrum[mask])
             slope, intercept = np.polyfit(log_freq, log_power, 1)
             beta = -slope
+            if beta < 0.3:
+                explanation = "White noise-like process (uncorrelated, flat spectrum)"
+            elif beta < 1.2:
+                explanation = "Pink noise-like process (1/f scaling, correlated fluctuations)"
+            elif beta < 2.5:
+                explanation = "Brownian or red noise (integrated or persistent behavior)"
+            else:
+                explanation = "Strong low-frequency dominance or nonstationary trend"
 
             plt.figure(figsize=(8, 5))
             plt.plot(log_freq, log_power, label='Log Power Spectrum')
@@ -66,37 +46,40 @@ class PSAAnalysis:
             plt.ylabel('log10(Power)')
             plt.legend()
             plt.grid(True)
+            note = (
+                'β=0: white noise\n'
+                'β=1: pink noise (1/f)\n'
+                'β=2: Brownian noise'
+            )
+            ax = plt.gca()
+            ax.text(
+                0.95,
+                0.95,
+                note,
+                transform=ax.transAxes,
+                fontsize=8,
+                verticalalignment='top',
+                horizontalalignment='right',
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8)
+            )
+            ax.text(
+                0.95,
+                0.75,
+                f"β ≈ {beta:.2f}\n{explanation}",
+                transform=ax.transAxes,
+                fontsize=8,
+                verticalalignment='top',
+                horizontalalignment='right',
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8)
+            )
             plt.tight_layout()
             plt.savefig('loglog_psd_with_beta.png', dpi=300)
             plt.close()
 
             with open("spectral_beta_result.txt", "w") as f:
-                f.write(f"Spectral exponent β (beta): {beta:.4f}\n")
-                if beta < 0.3:
-                    f.write("White noise-like process (uncorrelated, flat spectrum)\n")
-                elif beta < 1.2:
-                    f.write("Pink noise-like process (1/f scaling, correlated fluctuations)\n")
-                elif beta < 2.5:
-                    f.write("Brownian or red noise (integrated or persistent behavior)\n")
-                else:
-                    f.write("Strong low-frequency dominance or nonstationary trend\n")
+                f.write(f"Spectral exponent β (beta): {beta:.4f}\n{explanation}\n")
 
-            plt.figure(figsize=(10, 4))
-            plt.plot(xf, 2.0/n * np.abs(yf[0:n//2]))
-            plt.title('Power Spectral Density of Detrended Methane3')
-            plt.xlabel('Frequency [Hz]')
-            plt.ylabel('Amplitude')
-            plt.grid(True)
-            plt.tight_layout()
-            plt.savefig('power_spectral_density_methane3.png', dpi=300)
-            plt.close()
-
-            return [
-                'methane_original_vs_detrended.png',
-                'autocorrelation_detrended_methane3.png',
-                'loglog_psd_with_beta.png',
-                'power_spectral_density_methane3.png'
-            ], None
+            return ['loglog_psd_with_beta.png'], None
 
         except Exception as e:
             return [], str(e)

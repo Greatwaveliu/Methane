@@ -43,3 +43,15 @@ In ``time_lat_lon_methane`` mode five plots are produced:
 ``tula_methane3_box_swarmplot_time_lat_lon_methane_cluster.png`` and
 ``tula_methane3_stacked_hist_time_lat_lon_methane_cluster.png``. Other plots
 as well as CSV or text files are omitted.
+
+The DFA (Detrended Fluctuation Analysis) plot labels the y-axis as
+``Función de fluctuación F(n)`` and includes a short note summarizing common
+interpretations of the Hurst exponent values.
+
+The PSA (Power Spectral Analysis) now generates only
+``loglog_psd_with_beta.png``. This plot contains a brief guide to common values
+of the spectral exponent:
+``β=0: white noise``, ``β=1: pink noise (1/f)``, ``β=2: Brownian noise``. The
+plot also includes the calculated β value with a short explanation such as
+``Pink noise-like process`` or ``Brownian or red noise`` depending on the
+result.
