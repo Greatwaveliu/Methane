@@ -43,3 +43,7 @@ In ``time_lat_lon_methane`` mode five plots are produced:
 ``tula_methane3_box_swarmplot_time_lat_lon_methane_cluster.png`` and
 ``tula_methane3_stacked_hist_time_lat_lon_methane_cluster.png``. Other plots
 as well as CSV or text files are omitted.
+
+The DFA (Detrended Fluctuation Analysis) plot labels the y-axis as "Función de
+fluctuación F(n)" and includes a short note summarizing common interpretations of
+the Hurst exponent values.
