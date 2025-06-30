@@ -60,45 +60,34 @@ class LSTMAnalysis:
             y_train_pred_inv = scaler.inverse_transform(y_train_pred.reshape(-1,1)).flatten()
             y_test_pred_inv = scaler.inverse_transform(y_test_pred.reshape(-1,1)).flatten()
             
-            fig3, ax3 = plt.subplots()
-            ax3.plot(time_train, y_train_inv, label='Real (Train)')
-            ax3.plot(time_train, y_train_pred_inv, '--', label='Predicción (Train)')
-            ax3.plot(time_test, y_test_inv, label='RealalternativesReal (Test)')
-            ax3.plot(time_test, y_test_pred_inv, '--', label='Predicción (Test)')
-            ax3.set_xlabel('Tiempo (measurement_time)')
-            ax3.set_ylabel('Concentración de metano (ppb)')
-            ax3.legend()
-            file1 = guardar_fig(fig3, "LSTM.png")
-            generated_files.append(file1)
-            
             ultima_ventana = data_scaled[-ventana:].reshape(1, ventana, 1)
             predicciones_futuras = []
             fechas_futuras = []
-            
+
             fecha_base = df['measurement_time'].iloc[-1]
             for i in range(180):
                 pred = model.predict(ultima_ventana)[0, 0]
                 predicciones_futuras.append(pred)
                 nueva_fecha = fecha_base + timedelta(days=i + 1)
                 fechas_futuras.append(nueva_fecha)
-                
+
                 nueva_entrada = np.append(ultima_ventana[0, 1:, 0], pred).reshape(1, ventana, 1)
                 ultima_ventana = nueva_entrada
-                
+
             predicciones_futuras_inv = scaler.inverse_transform(np.array(predicciones_futuras).reshape(-1, 1)).flatten()
-            
-            fig_future, axf = plt.subplots()
-            axf.plot(df['measurement_time'], df['methane3'], label='Histórico')
-            axf.plot(fechas_futuras, predicciones_futuras_inv, '--', color='red', label='Predicción futura (6 meses)')
-            axf.set_xlabel('Tiempo (measurement_time)')
-            axf.set_ylabel('Concentración de metano (ppb)')
-            axf.set_title('Predicción futura con LSTM')
-            axf.legend()
-            file2 = "LSTM_Futuro.png"
-            fig_future.savefig(file2, bbox_inches='tight')
-            plt.close(fig_future)
-            generated_files.append(file2)
-            
+
+            fig, ax = plt.subplots()
+            ax.plot(time_train, y_train_inv, label='Real (Train)')
+            ax.plot(time_train, y_train_pred_inv, '--', label='Predicción (Train)')
+            ax.plot(time_test, y_test_inv, label='Real (Test)')
+            ax.plot(time_test, y_test_pred_inv, '--', label='Predicción (Test)')
+            ax.plot(fechas_futuras, predicciones_futuras_inv, '--', color='red', label='Predicción futura (6 meses)')
+            ax.set_xlabel('Tiempo (measurement_time)')
+            ax.set_ylabel('Concentración de metano (ppb)')
+            ax.set_title('Predicción con LSTM')
+            ax.legend()
+            file = guardar_fig(fig, "LSTM.png")
+            generated_files.append(file)
             return generated_files, None
             
         except Exception as e:
