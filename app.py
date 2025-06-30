@@ -797,13 +797,14 @@ class MethaneAnalysisApp(ctk.CTk):
             
         kmeans_patterns = [
             f'*kmeans_{mode}*.png',
-            f'*cluster_{mode}*.png',
+            f'*_{mode}_cluster*.png',
             f'tula_kmeans_{mode}_metricas_vs_K.png',
             f'tula_kmeans_{mode}_space_scatter_basemap.png',
-            f'tula_methane3_hist_{mode}_cluster_*.png',
+            f'tula_kmeans_{mode}_time_scatter.png',
+            f'tula_methane3_stacked_hist_{mode}_cluster.png',
+            f'tula_methane_mass_yearly_stacked_{mode}_cluster.png',
             f'tula_methane3_boxplot_{mode}_cluster.png',
-            f'tula_methane3_box_swarmplot_{mode}_cluster.png',
-            f'tula_kmeans_{mode}_time_scatter.png'
+            f'tula_methane3_box_swarmplot_{mode}_cluster.png'
         ]
         
         image_files = []
@@ -880,9 +881,12 @@ class MethaneAnalysisApp(ctk.CTk):
         if not hasattr(self, 'mass_image_viewer'):
             return
             
+        # Only show images produced by the mass estimation analysis itself.
         mass_patterns = [
             'methane_mass_map*.png',
-            '*mass*.png'
+            'weekly_mass.png',
+            'monthly_mass.png',
+            'yearly_mass.png'
         ]
         
         image_files = []
