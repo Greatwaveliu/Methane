@@ -22,12 +22,20 @@ class ProphetAnalysis:
             ax4 = fig4.gca()
             ax4.set_xlabel('Fecha')
             ax4.set_ylabel('Concentración de metano (ppb)')
+
+            start_future = df_prop['ds'].max()
+            end_future = forecast['ds'].max()
+            ax4.axvspan(start_future, end_future, color='yellow', alpha=0.1, label='Predicción futura')
+            ax4.legend(loc='best')
+
             fig4.tight_layout()
             file1 = "Prophet.png"
             fig4.savefig(file1, bbox_inches='tight')
             plt.close(fig4)
-            
+
             fig5 = modelo_p.plot_components(forecast)
+            if fig5.axes:
+                fig5.axes[0].set_xlabel('Fecha')
             fig5.tight_layout()
             file2 = "Prophet components.png"
             fig5.savefig(file2, bbox_inches='tight')
