@@ -348,15 +348,24 @@ class MethaneAnalysisApp(ctk.CTk):
         
         if file_path:
             try:
-                # Read CSV without parse_dates so we can catch missing columns
+                # Load CSV then sort by measurement_time if present
                 df = pd.read_csv(file_path)
-                self.data_file = file_path
-                filename = os.path.basename(file_path)
+                if 'measurement_time' in df.columns:
+                    df['measurement_time'] = pd.to_datetime(df['measurement_time'])
+                    df = df.sort_values('measurement_time').reset_index(drop=True)
+                    df['ordered_by_measurement_time'] = True
+                sorted_name = os.path.splitext(os.path.basename(file_path))[0] + "_sorted.csv"
+                sorted_path = os.path.join(os.path.dirname(file_path), sorted_name)
+                df.to_csv(sorted_path, index=False)
+                self.data_file = sorted_path
+                filename = os.path.basename(sorted_path)
                 self.data_status_label.configure(
                     text=f"✅ Loaded: {filename} ({len(df)} rows)"
                 )
-                messagebox.showinfo("Success", 
-                                    f"Data loaded successfully!\n{len(df)} rows loaded from {filename}")
+                messagebox.showinfo(
+                    "Success",
+                    f"Data loaded and ordered by measurement_time.\nSorted file saved as {filename}"
+                )
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to load file:\n{str(e)}")
                 self.data_status_label.configure(text="❌ Failed to load data")
@@ -382,6 +391,7 @@ class MethaneAnalysisApp(ctk.CTk):
                     latest_str = latest.strftime("%Y-%m-%d %H:%M:%S")
                     self.summary_text.insert("end", f"Earliest measurement time: {earliest_str}\n")
                     self.summary_text.insert("end", f"Latest measurement time:   {latest_str}")
+                    self.summary_text.insert("end", f"Data sorted by measurement_time and saved as {filename}")
                 except Exception:
                     # Parsing failed
                     self.summary_text.insert("end", 
