@@ -880,9 +880,12 @@ class MethaneAnalysisApp(ctk.CTk):
         if not hasattr(self, 'mass_image_viewer'):
             return
             
+        # Only show images produced by the mass estimation analysis itself.
         mass_patterns = [
             'methane_mass_map*.png',
-            '*mass*.png'
+            'weekly_mass.png',
+            'monthly_mass.png',
+            'yearly_mass.png'
         ]
         
         image_files = []
