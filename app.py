@@ -803,7 +803,8 @@ class MethaneAnalysisApp(ctk.CTk):
             f'tula_methane3_hist_{mode}_cluster_*.png',
             f'tula_methane3_boxplot_{mode}_cluster.png',
             f'tula_methane3_box_swarmplot_{mode}_cluster.png',
-            f'tula_kmeans_{mode}_time_scatter.png'
+            f'tula_kmeans_{mode}_time_scatter.png',
+            f'tula_methane_mass_yearly_stacked_{mode}_cluster.png'
         ]
         
         image_files = []
@@ -882,7 +883,9 @@ class MethaneAnalysisApp(ctk.CTk):
             
         mass_patterns = [
             'methane_mass_map*.png',
-            '*mass*.png'
+            'weekly_mass.png',
+            'monthly_mass.png',
+            'yearly_mass.png'
         ]
         
         image_files = []
