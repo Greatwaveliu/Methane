@@ -224,8 +224,8 @@ class MethaneAnalysisApp(ctk.CTk):
 
         # Load theme icons
         try:
-            sun_img = Image.open("sun.png")
-            moon_img = Image.open("moon.png")
+            sun_img = Image.open("moon.png")
+            moon_img = Image.open("sun.png")
             self.sun_ctk = ctk.CTkImage(light_image=sun_img, dark_image=sun_img, size=(20, 20))
             self.moon_ctk = ctk.CTkImage(light_image=moon_img, dark_image=moon_img, size=(20, 20))
         except Exception as e:
@@ -703,8 +703,7 @@ class MethaneAnalysisApp(ctk.CTk):
             return
             
         scatter_patterns = [
-            'scatter_*.png',
-            '*scatter*.png'
+            'scatter*.png'
         ]
         
         image_files = []
@@ -745,8 +744,7 @@ class MethaneAnalysisApp(ctk.CTk):
             return
             
         box_patterns = [
-            '*boxplot*.png',
-            'boxplot_*.png'
+            'boxplot_*_with_mean_line.png'
         ]
         
         image_files = []
