@@ -65,9 +65,13 @@ class KMeansAnalysis:
                 silhouette_list.append(silhouette)
                 db_index_list.append(db_index)
             
-            best_k_candidates = np.where(silhouette_list == max(silhouette_list))[0]
+            silhouette_arr = np.array(silhouette_list)
+            db_index_arr = np.array(db_index_list)
+            best_k_candidates = np.where(
+                silhouette_arr == silhouette_arr.max()
+            )[0]
             if len(best_k_candidates) > 1:
-                best_k = K_range[best_k_candidates[np.argmin([db_index_list[i] for i in best_k_candidates])]]
+                best_k = K_range[np.argmin(db_index_arr[best_k_candidates])]
             else:
                 best_k = K_range[best_k_candidates[0]]
             
@@ -236,30 +240,61 @@ class KMeansAnalysis:
                     plt.savefig(swarm_file, dpi=300)
                     plt.close()
                     generated_files.append(swarm_file)
+
+                    # Stacked histogram of methane3 by cluster
+                    clusters = sorted(df[cluster_column].unique())
+                    data_arrays = [df[df[cluster_column] == cl]['methane3'] for cl in clusters]
+                    plt.figure(figsize=(10, 6))
+                    colors = sns.color_palette('tab10', len(clusters))
+                    plt.hist(
+                        data_arrays,
+                        bins=30,
+                        stacked=True,
+                        label=[f'Cluster {cl}' for cl in clusters],
+                        color=colors,
+                        edgecolor='black'
+                    )
+                    plt.title(
+                        f'Distribución apilada de methane3 por cluster (K={best_k}) - {mode}'
+                    )
+                    plt.xlabel('methane3 (ppb)')
+                    plt.ylabel('Cantidad de puntos')
+                    plt.legend()
+                    plt.grid(axis='y', linestyle='--', alpha=0.3)
+                    plt.tight_layout()
+                    stacked_hist_file = (
+                        f'tula_methane3_stacked_hist_{mode}_cluster.png'
+                    )
+                    plt.savefig(stacked_hist_file, dpi=300)
+                    plt.close()
+                    generated_files.append(stacked_hist_file)
                 else:
                     clusters = sorted(df[cluster_column].unique())
-                    for cl in clusters:
-                        subset = df[df[cluster_column] == cl]['methane3']
-                        if not subset.empty:
-                            plt.figure(figsize=(6, 4))
-                            plt.hist(
-                                subset,
-                                bins=30,
-                                edgecolor='black'
-                            )
-                            plt.title(
-                                f'Distribución de methane3 en el cluster {cl} - {mode}'
-                            )
-                            plt.xlabel('methane3 (ppb)')
-                            plt.ylabel('Cantidad de puntos')
-                            plt.grid(axis='y', linestyle='--', alpha=0.3)
-                            plt.tight_layout()
-                            hist_file = (
-                                f'tula_methane3_hist_{mode}_cluster_{cl}.png'
-                            )
-                            plt.savefig(hist_file, dpi=300)
-                            plt.close()
-                            generated_files.append(hist_file)
+                    data_arrays = [df[df[cluster_column] == cl]['methane3'] for cl in clusters]
+                    plt.figure(figsize=(10, 6))
+                    colors = sns.color_palette('tab10', len(clusters))
+                    plt.hist(
+                        data_arrays,
+                        bins=30,
+                        stacked=True,
+                        label=[f'Cluster {cl}' for cl in clusters],
+                        color=colors,
+                        edgecolor='black'
+                    )
+                    plt.title(
+                        f'Distribución apilada de methane3 por cluster (K={best_k}) - {mode}'
+                    )
+                    plt.xlabel('methane3 (ppb)')
+                    plt.ylabel('Cantidad de puntos')
+                    plt.legend()
+                    plt.grid(axis='y', linestyle='--', alpha=0.3)
+                    plt.tight_layout()
+                    stacked_hist_file = (
+                        f'tula_methane3_stacked_hist_{mode}_cluster.png'
+                    )
+                    plt.savefig(stacked_hist_file, dpi=300)
+                    plt.close()
+                    generated_files.append(stacked_hist_file)
 
                     plt.figure(figsize=(10, 6))
                     sns.boxplot(
