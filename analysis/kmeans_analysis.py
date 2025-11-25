@@ -76,7 +76,7 @@ class KMeansAnalysis:
             
             generated_files = []
 
-            if mode != 'lat_lon':
+            if mode not in ['lat_lon', 'time_lat_lon']:
                 output_csv = f'tula_kmeans_{mode}_clusters.csv'
                 df.to_csv(output_csv, index=False)
                 generated_files.append(output_csv)
@@ -86,7 +86,7 @@ class KMeansAnalysis:
                 f"{cl}: {cnt}" for cl, cnt in conteos.items()
             )
 
-            if mode != 'lat_lon':
+            if mode not in ['lat_lon', 'time_lat_lon']:
                 conteo_file = f'tula_kmeans_{mode}_conteos.txt'
                 with open(conteo_file, 'w') as f:
                     f.write(
@@ -95,29 +95,59 @@ class KMeansAnalysis:
                     f.write(str(conteos))
                 generated_files.append(conteo_file)
             
-            plt.figure(figsize=(12, 4))
-            plt.subplot(1, 3, 1)
-            plt.plot(K_range, wcss_list, marker='o')
-            plt.title('WCSS vs K')
-            plt.xlabel('Número de clusters (K)')
-            plt.ylabel('WCSS')
-            plt.grid(True, linestyle='--', alpha=0.3)
-            
-            plt.subplot(1, 3, 2)
-            plt.plot(K_range, silhouette_list, marker='o', color='green')
-            plt.title('Silhouette Score vs K')
-            plt.xlabel('Número de clusters (K)')
-            plt.ylabel('Silhouette Score')
-            plt.grid(True, linestyle='--', alpha=0.3)
-            
-            plt.subplot(1, 3, 3)
-            plt.plot(K_range, db_index_list, marker='o', color='red')
-            plt.title('Davies-Bouldin Index vs K')
-            plt.xlabel('Número de clusters (K)')
-            plt.ylabel('DB Index')
-            plt.grid(True, linestyle='--', alpha=0.3)
-            
-            plt.tight_layout()
+            fig, axes = plt.subplots(1, 3, figsize=(12, 4))
+
+            best_idx = best_k - K_range.start
+
+            axes[0].plot(K_range, wcss_list, marker='o')
+            axes[0].axvline(best_k, color='purple', linestyle='--')
+            axes[0].scatter(best_k, wcss_list[best_idx], color='purple', zorder=5)
+            axes[0].annotate(
+                str(best_k),
+                xy=(best_k, wcss_list[best_idx]),
+                xytext=(0, 8),
+                textcoords='offset points',
+                ha='center',
+                color='purple'
+            )
+            axes[0].set_title('WCSS vs K')
+            axes[0].set_xlabel('Número de clusters (K)')
+            axes[0].set_ylabel('WCSS')
+            axes[0].grid(True, linestyle='--', alpha=0.3)
+
+            axes[1].plot(K_range, silhouette_list, marker='o', color='green')
+            axes[1].axvline(best_k, color='purple', linestyle='--')
+            axes[1].scatter(best_k, silhouette_list[best_idx], color='purple', zorder=5)
+            axes[1].annotate(
+                str(best_k),
+                xy=(best_k, silhouette_list[best_idx]),
+                xytext=(0, 8),
+                textcoords='offset points',
+                ha='center',
+                color='purple'
+            )
+            axes[1].set_title('Silhouette Score vs K')
+            axes[1].set_xlabel('Número de clusters (K)')
+            axes[1].set_ylabel('Silhouette Score')
+            axes[1].grid(True, linestyle='--', alpha=0.3)
+
+            axes[2].plot(K_range, db_index_list, marker='o', color='red')
+            axes[2].axvline(best_k, color='purple', linestyle='--')
+            axes[2].scatter(best_k, db_index_list[best_idx], color='purple', zorder=5)
+            axes[2].annotate(
+                str(best_k),
+                xy=(best_k, db_index_list[best_idx]),
+                xytext=(0, 8),
+                textcoords='offset points',
+                ha='center',
+                color='purple'
+            )
+            axes[2].set_title('Davies-Bouldin Index vs K')
+            axes[2].set_xlabel('Número de clusters (K)')
+            axes[2].set_ylabel('DB Index')
+            axes[2].grid(True, linestyle='--', alpha=0.3)
+
+            fig.tight_layout()
             metrics_file = f'tula_kmeans_{mode}_metricas_vs_K.png'
             plt.savefig(metrics_file, dpi=300)
             plt.close()
